@@ -4,9 +4,14 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleLogin = (role) => {
-    // Nanti kita sambungkan ke API Login di sini
-    alert(`Login sebagai ${role} berhasil! (Simulasi)`);
-    navigate("/dashboard"); // Redirect ke dashboard setelah login
+    // 1. Simpan Role ke Local Storage (Memori Browser)
+    localStorage.setItem("userRole", role);
+
+    // 2. Beri pesan selamat datang
+    alert(`Login berhasil! Selamat datang, ${role}.`);
+
+    // 3. Pindah ke Dashboard
+    navigate("/dashboard");
   };
 
   return (

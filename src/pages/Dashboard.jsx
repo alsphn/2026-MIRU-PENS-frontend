@@ -6,6 +6,13 @@ export default function Dashboard() {
   const [peminjamans, setPeminjamans] = useState([]);
   const API_URL = "http://localhost:5106/api/Peminjaman";
 
+  // --- BAGIAN BARU: CEK ROLE USER ---
+  // Kita ambil data "userRole" yang tadi disimpan di Login.jsx
+  const userRole = localStorage.getItem("userRole");
+  // Kita buat variabel penentu: Apakah dia Admin? (True/False)
+  const isAdmin = userRole === "Admin";
+  // ----------------------------------
+
   // 1. AMBIL DATA
   useEffect(() => {
     const fetchData = async () => {
@@ -33,22 +40,14 @@ export default function Dashboard() {
     }
   };
 
-  // 3. FUNGSI BARU: UBAH STATUS (APPROVE / REJECT)
+  // 3. UBAH STATUS (APPROVE / REJECT)
   const handleStatus = async (id, newStatus) => {
     try {
-      // Cari data item yang mau diubah dulu (karena PUT butuh semua data)
       const itemToUpdate = peminjamans.find((p) => p.id === id);
+      const updatedItem = { ...itemToUpdate, status: newStatus };
 
-      // Siapkan data baru dengan status yang berubah
-      const updatedItem = {
-        ...itemToUpdate,
-        status: newStatus,
-      };
-
-      // Kirim ke Backend
       await axios.put(`${API_URL}/${id}`, updatedItem);
 
-      // Update tampilan tabel lokal (biar gak perlu refresh page)
       setPeminjamans(
         peminjamans.map((item) =>
           item.id === id ? { ...item, status: newStatus } : item,
@@ -69,7 +68,12 @@ export default function Dashboard() {
           <h3 className="font-bold text-gray-800 text-lg">
             Dashboard Peminjaman
           </h3>
-          <p className="text-sm text-gray-500">Kelola persetujuan ruangan</p>
+          <p className="text-sm text-gray-500">
+            {/* Tampilkan pesan beda tergantung siapa yang login */}
+            {isAdmin
+              ? "Mode Admin: Kelola Persetujuan"
+              : "Mode Mahasiswa: Daftar Pengajuan Anda"}
+          </p>
         </div>
         <Link
           to="/peminjaman/baru"
@@ -86,8 +90,7 @@ export default function Dashboard() {
               <th className="py-4 px-6">Peminjam</th>
               <th className="py-4 px-6">Ruangan</th>
               <th className="py-4 px-6">Status</th>
-              <th className="py-4 px-6 text-center w-64">Aksi Admin</th>{" "}
-              {/* Kolom diperlebar */}
+              <th className="py-4 px-6 text-center w-64">Aksi</th>
             </tr>
           </thead>
           <tbody className="text-gray-700 text-sm divide-y divide-gray-100">
@@ -106,18 +109,21 @@ export default function Dashboard() {
                         ? "bg-green-100 text-green-700"
                         : item.status === "Ditolak"
                           ? "bg-red-100 text-red-700"
-                          : "bg-yellow-100 text-yellow-700" // Warna untuk "Menunggu"
+                          : "bg-yellow-100 text-yellow-700"
                     }`}
                   >
                     {item.status}
                   </span>
                 </td>
 
-                {/* KOLOM AKSI (Approval + Edit/Delete) */}
+                {/* KOLOM AKSI */}
                 <td className="py-4 px-6 text-center">
                   <div className="flex justify-center items-center gap-2">
-                    {/* HANYA TAMPIL JIKA STATUS MASIH 'Menunggu' */}
-                    {item.status === "Menunggu" && (
+                    {/* --- LOGIKA SATPAM --- */}
+                    {/* Tombol Checklist & Silang HANYA muncul jika: */}
+                    {/* 1. Yang login adalah ADMIN (isAdmin) */}
+                    {/* 2. Statusnya masih 'Menunggu' */}
+                    {isAdmin && item.status === "Menunggu" && (
                       <>
                         <button
                           onClick={() => handleStatus(item.id, "Disetujui")}
@@ -133,12 +139,11 @@ export default function Dashboard() {
                         >
                           ✖
                         </button>
-                        <div className="w-px h-6 bg-gray-300 mx-1"></div>{" "}
-                        {/* Garis Pemisah */}
+                        <div className="w-px h-6 bg-gray-300 mx-1"></div>
                       </>
                     )}
+                    {/* --------------------- */}
 
-                    {/* Tombol CRUD Biasa */}
                     <Link
                       to={`/peminjaman/edit/${item.id}`}
                       className="text-blue-500 hover:text-blue-700 font-medium text-xs"
