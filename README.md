@@ -93,10 +93,6 @@ Karena aplikasi ini menggunakan simulasi autentikasi (`localStorage`), berikut c
 
 ---
 
-**Dibuat oleh:**
-[Isi Nama Lengkap Kamu Disini]
-Teknik Informatika - PENS
-
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
