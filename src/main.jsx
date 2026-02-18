@@ -7,8 +7,6 @@ import { BrowserRouter } from "react-router-dom"; // <--- Tambah Ini
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
-      {" "}
-      {/* <--- Bungkus App di sini */}
       <App />
     </BrowserRouter>
   </StrictMode>,
